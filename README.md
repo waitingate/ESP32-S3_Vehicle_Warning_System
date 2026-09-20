@@ -12,13 +12,13 @@ The system is designed to solve the limitations of traditional warning triangles
 The system was developed using a modular approach. Below are links to the individual modules and the final integrated version:
 
 * **Final Integrated Version (Main Project)**
-* **[ESP32-S3_Vehicle_Warning_System](https://www.google.com/search?q=https://github.com/welton5532/ESP32-S3_Vehicle_Warning_System)** - The complete system containing all features.
+* **[ESP32-S3_Vehicle_Warning_System](https://github.com/waitingate/ESP32-S3_Vehicle_Warning_System)** - The complete system containing all features.
 
 
 * **Sub-modules (Testing)**
-* [ESP32-S3-MQ3-Alcohol-Sensor](https://www.google.com/search?q=https://github.com/welton5532/ESP32-S3-MQ3-Alcohol-Sensor) - Alcohol sensor ADC reading and calibration tests.
-* [ESP32-S3-Chinese-Traditional-LED-Matrix](https://www.google.com/search?q=https://github.com/welton5532/ESP32-S3-Chinese-Traditional-LED-Matrix) - Traditional Chinese TTF font rendering and scrolling text tests.
-* [ESP32-S3_RemoteXY_BLE_LED_Control](https://www.google.com/search?q=https://github.com/welton5532/ESP32-S3_RemoteXY_BLE_LED_Control) - Bluetooth interface control and menu logic tests.
+* [ESP32-S3-MQ3-Alcohol-Sensor](https://github.com/waitingate/ESP32-S3-MQ3-Alcohol-Sensor) - Alcohol sensor ADC reading and calibration tests.
+* [ESP32-S3-Chinese-Traditional-LED-Matrix](https://github.com/waitingate/ESP32-S3-Chinese-Traditional-LED-Matrix) - Traditional Chinese TTF font rendering and scrolling text tests.
+* [ESP32-S3_RemoteXY_BLE_LED_Control](https://github.com/waitingate/ESP32-S3_RemoteXY_BLE_LED_Control) - Bluetooth interface control and menu logic tests.
 
 
 
