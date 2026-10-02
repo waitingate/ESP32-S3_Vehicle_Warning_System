@@ -30,18 +30,26 @@ This project contains hardware schematics, software source code, and system reso
 
 ```text
 .
-├── Circuit_and_PCB/
+├── hardware/
+│   ├── ESP32-S3_Vehicle_Warning_schematic.kicad_pro  # KiCad Project File (open this in KiCad 9)
 │   ├── ESP32-S3_Vehicle_Warning_schematic.kicad_sch  # KiCad Schematic Source File
-│   └── ESP32-S3_Vehicle_Warning_schematic.png        # Schematic Preview Image
+│   ├── ESP32-S3_Vehicle_Warning_schematic.png        # Schematic Preview Image
+│   ├── wiring_diagram.excalidraw                     # System Connection Diagram (Excalidraw source)
+│   ├── wiring_diagram.png                            # System Connection Diagram (image)
+│   ├── size_overview.png                             # Device size: 38 cm triangle, 19 cm 64x64 matrix
+│   └── simulation/                                   # Multisim 14 circuits (power switches, LED switch)
+├── images/
+│   ├── app_demo/                                     # App demo GIF + the 37 step screenshots
+│   ├── photos/                                       # Photos of the finished device
+│   └── setup/                                        # PlatformIO setup screenshots
 ├── data/
 │   └── font.ttf                                      # Pre-optimized Font File (Includes 4808 common Chinese chars)
 ├── src/
 │   └── main.cpp                                      # Main Source Code
-├── module_2d_image.excalidraw                        # System Connection Diagram (Excalidraw source)
 ├── partitions_custom.csv                             # Custom Partition Table (Allocates 5MB Flash for fonts)
 ├── platformio.ini                                    # PlatformIO Project Configuration File
+├── LICENSE                                           # MIT License
 └── README.md                                         # Project Documentation
-
 ```
 
 ---
@@ -73,7 +81,9 @@ The system is controlled via the **RemoteXY** App over Bluetooth, featuring an i
 
 ### App Interface Preview
 
-*(Above: RemoteXY Bluetooth interface showing Alcohol readings and Warning controls)*
+<img width="240" alt="Menu with the 9 functions" src="images/app_demo/screenshots/08_menu_alcohol_tester_20260102-160036.png" /> <img width="240" alt="Alcohol Tester in mg/L" src="images/app_demo/screenshots/07_alcohol_tester_mg_l_20260102-160031.png" />
+
+*(Above: RemoteXY Bluetooth interface showing the function menu and an Alcohol reading)*
 
 | Selector | Function | Details |
 | --- | --- | --- |
@@ -92,9 +102,14 @@ The system is controlled via the **RemoteXY** App over Bluetooth, featuring an i
 ## Hardware Architecture
 
 ### Circuit Schematic (KiCad)
-<img width="4200" height="2550" alt="image" src="https://github.com/user-attachments/assets/906c5ba1-b356-4466-bbe4-4c1d5c487d7d" />
+<img width="4200" height="2550" alt="Circuit schematic" src="hardware/ESP32-S3_Vehicle_Warning_schematic.png" />
 
 *(Above: Complete circuit schematic including ESP32-S3, HUB75 interface)*
+
+* KiCad source: [`hardware/ESP32-S3_Vehicle_Warning_schematic.kicad_pro`](hardware/ESP32-S3_Vehicle_Warning_schematic.kicad_pro)
+* Wiring diagram: [`hardware/wiring_diagram.png`](hardware/wiring_diagram.png) (editable source: `wiring_diagram.excalidraw`, open at excalidraw.com)
+* Device size and layout: [`hardware/size_overview.png`](hardware/size_overview.png)
+* Circuit simulations (Multisim 14): [`hardware/simulation/`](hardware/simulation/) - high-side and low-side power switches, LED switch circuit
 
 ### Core Specifications
 
@@ -107,12 +122,14 @@ The system is controlled via the **RemoteXY** App over Bluetooth, featuring an i
 
 | Module | Pin Name | ESP32-S3 GPIO | Note |
 | --- | --- | --- | --- |
-| **HUB75** | R1/G1/B1/R2/G2/B2 | 4/5/6/7/15/16 | Data Lines |
-|  | A/B/C/D/E | 1/2/42/41/40 | Row Select |
-|  | CLK/LAT/OE | 17/18/8 | Control |
-| **Control** | **Shared Control** | **GPIO 2** | **Interlock Control** |
+| **HUB75** | R1/G1/B1 | 4/41/5 | Data Lines (upper half) |
+|  | R2/G2/B2 | 6/40/7 | Data Lines (lower half) |
+|  | A/B/C/D/E | 15/48/16/47/39 | Row Select |
+|  | LAT/OE/CLK | 21/18/17 | Control |
+| **Control** | **Shared Control** | **GPIO 2** | **Interlock Control** (LOW = Alcohol Sensor on, HIGH = Triangle Light on) |
 | **Sensor** | MQ-3 ADC | GPIO 1 | Analog Input |
 | **Audio** | Buzzer | GPIO 42 | PWM Output |
+| **Status** | On-board RGB LED | GPIO 38 | NeoPixel |
 
 ---
 
@@ -131,9 +148,9 @@ The system is controlled via the **RemoteXY** App over Bluetooth, featuring an i
 2. `git clone` this repository.
 3. Ensure drivers (CH343/CP210x) are installed on your computer.
 
-<img width="1955" height="1072" alt="Screenshot_2026-01-05_19-17-53_env1" src="https://github.com/user-attachments/assets/578c96ed-f980-4268-8dab-2cc0bb324772" />
+<img width="1955" height="1072" alt="PlatformIO setup 1" src="images/setup/platformio_setup_1.png" />
 
-<img width="1955" height="1072" alt="Screenshot_2026-01-05_19-18-25_env2" src="https://github.com/user-attachments/assets/aa2cea81-d20e-4533-a0fc-7ddc5d1787cb" />
+<img width="1955" height="1072" alt="PlatformIO setup 2" src="images/setup/platformio_setup_2.png" />
 
 ---
 
@@ -159,8 +176,8 @@ You **DO NOT** need to generate the font yourself. You simply need to upload it 
 
 4. Click **Upload Filesystem Image**.
 5. PlatformIO will package the `data` folder and flash it to the board.
-6. 
-<img width="1384" height="1071" alt="Screenshot_2026-01-05_19-19-59_env3" src="https://github.com/user-attachments/assets/890d8019-42b1-4ebc-bd25-c1981d477838" />
+
+<img width="1384" height="1071" alt="PlatformIO setup 3: Upload Filesystem Image" src="images/setup/platformio_setup_3.png" />
 
    
 
@@ -179,16 +196,22 @@ Once the terminal shows `SUCCESS`, restart the board. If the Serial Monitor show
 ---
 
 ## Gallery & Demo
-![app_demo_ios](https://github.com/user-attachments/assets/f7ea3e33-943e-4b2c-b774-26eb039f4f1b)
 
-![IMG_20260105_074116_340](https://github.com/user-attachments/assets/8857891c-f925-4da2-9cc1-2f618d67df59)
+### App Demo (Android, Google Pixel 4 XL)
+![App demo: connect over BLE, then all 9 menu functions](images/app_demo/app_demo_android_pixel4xl_20260102.gif)
 
-![IMG_20260105_074423_292](https://github.com/user-attachments/assets/9984e6a8-7345-48a9-817e-f2b56f99c18a)
+The 37 steps as full-resolution screenshots: [`images/app_demo/screenshots/`](images/app_demo/screenshots/)
 
+### Photos
+![IMG_20260105_074013_616](images/photos/IMG_20260105_074013_616.jpg)
 
-![IMG_20260105_074443_389](https://github.com/user-attachments/assets/8d5d74be-c7e7-4c39-a80a-a9caad32eb6e)
+![IMG_20260105_074116_340](images/photos/IMG_20260105_074116_340.jpg)
 
-![IMG_20260105_074443_389](https://github.com/user-attachments/assets/9786f712-0049-43be-add5-003c6012d63b)
+![IMG_20260105_074423_292](images/photos/IMG_20260105_074423_292.jpg)
+
+![IMG_20260105_074443_389](images/photos/IMG_20260105_074443_389.jpg)
+
+![IMG_20260105_074445_752](images/photos/IMG_20260105_074445_752.jpg)
 
 
 ### Live Demo Video
@@ -207,4 +230,4 @@ https://github.com/user-attachments/assets/b1d5552f-47cb-476c-b5d7-cf04c280354c
 
 ---
 
-*Created by waitingate*
+*Created by [waitingate](https://github.com/waitingate)*

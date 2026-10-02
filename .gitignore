@@ -3,3 +3,9 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+
+# KiCad: automatic backups, caches, lock files, personal view settings
+*-backups/
+fp-info-cache
+*.lck
+*.kicad_prl
