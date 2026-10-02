@@ -1,233 +1,107 @@
+# ESP32-S3 Vehicle Warning System
 
-# Smart Vehicle Warning & Alcohol Detection System
+An electronic warning triangle for a car that has broken down. A 64x64 LED matrix shows the warning text, an MQ-3 sensor can check the driver's breath for alcohol, and everything is set from a phone over Bluetooth with the RemoteXY app - so nobody has to walk onto the road to put the triangle in place.
 
-This project leverages the powerful dual-core capabilities of the **ESP32-S3** to integrate a **64x64 HUB75 LED Matrix**, **MQ-3 Alcohol Sensor**, and **RemoteXY Bluetooth Control**. It creates an all-in-one smart vehicle safety device combining "Active Warning," "DUI Prevention," and "Remote Control."
+It combines three smaller projects of mine:
 
-The system is designed to solve the limitations of traditional warning triangles—such as **short visibility distance** due to passive reflection, the **high risk** of exiting the vehicle to place them, and **single-functionality**—effectively preventing secondary collisions.
+- [ESP32-S3-MQ3-Alcohol-Sensor](https://github.com/waitingate/ESP32-S3-MQ3-Alcohol-Sensor) - reading and calibrating the MQ-3
+- [ESP32-S3-Chinese-Traditional-LED-Matrix](https://github.com/waitingate/ESP32-S3-Chinese-Traditional-LED-Matrix) - scrolling Chinese text on the matrix
+- [ESP32-S3_RemoteXY_BLE_LED_Control](https://github.com/waitingate/ESP32-S3_RemoteXY_BLE_LED_Control) - phone control over Bluetooth
 
----
+![The phone app controlling the device](images/app_demo/app_demo_android_pixel4xl_20260102.gif)
 
-## Repositories
+## Hardware
 
-The system was developed using a modular approach. Below are links to the individual modules and the final integrated version:
+- ESP32-S3-DevKitC-1U-N8R8 (8 MB flash, 8 MB PSRAM)
+- Waveshare RGB-Matrix-P3-64x64 (HUB75E)
+- MQ-3 alcohol sensor module
+- passive buzzer and an LED strip for the triangle light
+- 5 V 2 A power bank
 
-* **Final Integrated Version (Main Project)**
-* **[ESP32-S3_Vehicle_Warning_System](https://github.com/waitingate/ESP32-S3_Vehicle_Warning_System)** - The complete system containing all features.
+The schematic is a KiCad 9 project in `hardware/` (open `ESP32-S3_Vehicle_Warning_schematic.kicad_pro`):
 
+<img alt="Schematic" src="hardware/ESP32-S3_Vehicle_Warning_schematic.png" width="900" />
 
-* **Sub-modules (Testing)**
-* [ESP32-S3-MQ3-Alcohol-Sensor](https://github.com/waitingate/ESP32-S3-MQ3-Alcohol-Sensor) - Alcohol sensor ADC reading and calibration tests.
-* [ESP32-S3-Chinese-Traditional-LED-Matrix](https://github.com/waitingate/ESP32-S3-Chinese-Traditional-LED-Matrix) - Traditional Chinese TTF font rendering and scrolling text tests.
-* [ESP32-S3_RemoteXY_BLE_LED_Control](https://github.com/waitingate/ESP32-S3_RemoteXY_BLE_LED_Control) - Bluetooth interface control and menu logic tests.
+Also in `hardware/`:
 
+- `wiring_diagram.png` - how the modules connect to the board (editable source: `wiring_diagram.excalidraw`)
+- `size_overview.png` - sizes: the triangle is 38 cm high, the matrix 19 cm
+- `simulation/` - Multisim 14 circuits for the high-side and low-side power switches and the LED switch
 
+### Pins
 
----
-
-## Project Structure
-
-This project contains hardware schematics, software source code, and system resources. The directory structure is as follows:
-
-```text
-.
-├── hardware/
-│   ├── ESP32-S3_Vehicle_Warning_schematic.kicad_pro  # KiCad Project File (open this in KiCad 9)
-│   ├── ESP32-S3_Vehicle_Warning_schematic.kicad_sch  # KiCad Schematic Source File
-│   ├── ESP32-S3_Vehicle_Warning_schematic.png        # Schematic Preview Image
-│   ├── wiring_diagram.excalidraw                     # System Connection Diagram (Excalidraw source)
-│   ├── wiring_diagram.png                            # System Connection Diagram (image)
-│   ├── size_overview.png                             # Device size: 38 cm triangle, 19 cm 64x64 matrix
-│   └── simulation/                                   # Multisim 14 circuits (power switches, LED switch)
-├── images/
-│   ├── app_demo/                                     # App demo GIF + the 37 step screenshots
-│   ├── photos/                                       # Photos of the finished device
-│   └── setup/                                        # PlatformIO setup screenshots
-├── data/
-│   └── font.ttf                                      # Pre-optimized Font File (Includes 4808 common Chinese chars)
-├── src/
-│   └── main.cpp                                      # Main Source Code
-├── partitions_custom.csv                             # Custom Partition Table (Allocates 5MB Flash for fonts)
-├── platformio.ini                                    # PlatformIO Project Configuration File
-├── LICENSE                                           # MIT License
-└── README.md                                         # Project Documentation
-```
-
----
-
-## Table of Contents
-
-1. [Motivation & Background](#motivation--background)
-2. [System Functionality](#system-functionality)
-3. [Hardware Architecture](#hardware-architecture)
-4. [Software Architecture](#software-architecture)
-5. [Installation Guide](#installation-guide)
-6. [Font Upload Guide](#font-upload-guide) **(Crucial Step)**
-7. [Operation Manual](#operation-manual)
-8. [Gallery & Demo](#gallery--demo)
-
----
-
-## Motivation & Background
-
-1. **Solving "Secondary Collisions":** Traditional warning triangles rely on passive reflection, making them hard to see in rain, fog, or at night. Furthermore, they cannot convey specific information (e.g., Breakdown vs. Medical Emergency).
-2. **Reducing Operational Risk:** Drivers risk their lives walking into traffic to place traditional triangles.
-3. **The Solution:** A combination of Active LED Warning, Bluetooth Remote Control (stay inside the car), and Alcohol Detection.
-
----
-
-## System Functionality
-
-The system is controlled via the **RemoteXY** App over Bluetooth, featuring an intuitive menu-driven interface.
-
-### App Interface Preview
-
-<img width="240" alt="Menu with the 9 functions" src="images/app_demo/screenshots/08_menu_alcohol_tester_20260102-160036.png" /> <img width="240" alt="Alcohol Tester in mg/L" src="images/app_demo/screenshots/07_alcohol_tester_mg_l_20260102-160031.png" />
-
-*(Above: RemoteXY Bluetooth interface showing the function menu and an Alcohol reading)*
-
-| Selector | Function | Details |
+| Part | Signal | GPIO |
 | --- | --- | --- |
-| **1. Alcohol Tester** | **Alcohol Detector** | Supports **mg/L** and **PPM** units. When active, the Warning Light is forced OFF (Interlock). |
-| **2. Triangle Light** | **Warning Triangle** | Controls the external LED strip (ON/OFF). |
-| **3. Buzzer Alarm** | **Audio Alarm** | PWM linear volume control (0% ~ 100%). |
-| **4. Matrix Brightness** | **Brightness** | Adjusts LED Matrix brightness (0% ~ 100%). |
-| **5. Preset Messages** | **Preset Warnings** | Cycle through 9 modes: Accident, Breakdown, Temp Stop, Road Work, Fog Mode, SOS, etc. |
-| **6. Custom Message** | **Custom Text** | Type any Traditional Chinese/English text to scroll instantly. |
-| **7. Text Color** | **Text Color** | Switch between Rainbow, Red, Yellow, Green, Blue, White, etc. |
-| **8. Text Speed** | **Scroll Speed** | Adjust scrolling speed (Level 1 ~ 10). |
-| **9. Text Size** | **Text Size** | Dynamically adjust font size (8px ~ 60px). |
+| HUB75 matrix | R1, G1, B1 | 4, 41, 5 |
+| | R2, G2, B2 | 6, 40, 7 |
+| | A, B, C, D, E | 15, 48, 16, 47, 39 |
+| | LAT, OE, CLK | 21, 18, 17 |
+| MQ-3 | analog out | 1 |
+| Sensor / light switch | LOW = sensor on, HIGH = triangle light on | 2 |
+| Buzzer | PWM | 42 |
+| On-board RGB LED | | 38 |
 
----
+The sensor and the triangle light share GPIO 2, so only one of them is on at a time: turning the light on switches the sensor off.
 
-## Hardware Architecture
+## The app
 
-### Circuit Schematic (KiCad)
-<img width="4200" height="2550" alt="Circuit schematic" src="hardware/ESP32-S3_Vehicle_Warning_schematic.png" />
+One menu with nine items; the two arrow buttons change the value of the selected item.
 
-*(Above: Complete circuit schematic including ESP32-S3, HUB75 interface)*
+| Menu item | What it does |
+| --- | --- |
+| Alcohol Tester | reading in mg/L or PPM, or sensor off |
+| Triangle Light | LED strip on / off |
+| Buzzer Alarm | volume 0-100 % in steps of 10 |
+| Matrix Brightness | 0-255 in steps of 10 |
+| Preset Messages | 9 built-in messages: accident, breakdown, temporary stop, road work, traffic jam, fog, keep distance, S.O.S., system check |
+| Custom Message | your own text, Chinese or English |
+| Text Color | rainbow or one of 9 colours |
+| Text Speed | 1 (slow) to 10 (fast) |
+| Text Size | 8 to 60 px, default 48 |
 
-* KiCad source: [`hardware/ESP32-S3_Vehicle_Warning_schematic.kicad_pro`](hardware/ESP32-S3_Vehicle_Warning_schematic.kicad_pro)
-* Wiring diagram: [`hardware/wiring_diagram.png`](hardware/wiring_diagram.png) (editable source: `wiring_diagram.excalidraw`, open at excalidraw.com)
-* Device size and layout: [`hardware/size_overview.png`](hardware/size_overview.png)
-* Circuit simulations (Multisim 14): [`hardware/simulation/`](hardware/simulation/) - high-side and low-side power switches, LED switch circuit
+After connecting, the app starts on Alcohol Tester. All 37 steps of the demo above are also in `images/app_demo/screenshots/`.
 
-### Core Specifications
+## Building
 
-* **MCU**: Espressif **ESP32-S3-DevKitC-1U-N8R8**
-* **Display**: 64x64 RGB HUB75 LED Matrix (P3)
-* **Sensor**: MQ-3 Alcohol Gas Sensor
-* **Power**: 5V 2A Power Bank + Independent Filtering Circuit
+1. Install VS Code with the PlatformIO extension and clone this repo.
+2. Open the folder in PlatformIO. `platformio.ini` already sets the board (`esp32-s3-devkitc-1`), the octal PSRAM and the partition table.
+3. Build and upload.
 
-### Pin Mapping
+<img alt="The project open in PlatformIO" src="images/setup/platformio_setup_1.png" width="800" />
 
-| Module | Pin Name | ESP32-S3 GPIO | Note |
-| --- | --- | --- | --- |
-| **HUB75** | R1/G1/B1 | 4/41/5 | Data Lines (upper half) |
-|  | R2/G2/B2 | 6/40/7 | Data Lines (lower half) |
-|  | A/B/C/D/E | 15/48/16/47/39 | Row Select |
-|  | LAT/OE/CLK | 21/18/17 | Control |
-| **Control** | **Shared Control** | **GPIO 2** | **Interlock Control** (LOW = Alcohol Sensor on, HIGH = Triangle Light on) |
-| **Sensor** | MQ-3 ADC | GPIO 1 | Analog Input |
-| **Audio** | Buzzer | GPIO 42 | PWM Output |
-| **Status** | On-board RGB LED | GPIO 38 | NeoPixel |
+<img alt="platformio.ini" src="images/setup/platformio_setup_2.png" width="800" />
 
----
+### Upload the font once
 
-## Software Architecture
+The text is drawn with a TrueType font stored in the board's flash. `data/font.ttf` is a cut-down Taipei Sans TC with the 4808 common Traditional Chinese characters (Ministry of Education list), ASCII and a few symbols; `partitions_custom.csv` gives it 5 MB.
 
-* **Memory Optimization**: Uses `ps_calloc` to allocate graphics buffers in external PSRAM.
-* **Smart Rendering**: Uses `OpenFontRender` to handle Traditional Chinese fonts.
-* **Anti-Jamming**: Implements BLE Lazy Loading to prevent data congestion during sensor updates.
-* **File System**: Uses LittleFS to store the font library.
+In the PlatformIO sidebar: `esp32-s3-devkitc-1` > Platform > Upload Filesystem Image.
 
----
+<img alt="Upload Filesystem Image" src="images/setup/platformio_setup_3.png" width="600" />
 
-## Installation Guide
+Without the font the matrix stays dark. `FS Fail` in the serial monitor (115200 baud) means the file system could not be mounted; check that `platformio.ini` still uses `partitions_custom.csv`.
 
-1. Install **VS Code** and the **PlatformIO** extension.
-2. `git clone` this repository.
-3. Ensure drivers (CH343/CP210x) are installed on your computer.
+## Notes
 
-<img width="1955" height="1072" alt="PlatformIO setup 1" src="images/setup/platformio_setup_1.png" />
+- Bluetooth can react slowly while the text scrolls fast; the display refresh comes first.
+- PlatformIO installs the libraries: ESP32 HUB75 LED MATRIX PANEL DMA Display, Adafruit GFX, OpenFontRender and RemoteXY.
 
-<img width="1955" height="1072" alt="PlatformIO setup 2" src="images/setup/platformio_setup_2.png" />
+## Photos
 
----
+![Switched on](images/photos/IMG_20260105_074013_616.jpg)
 
-## Font Upload Guide
+![Switched on, front](images/photos/IMG_20260105_074116_340.jpg)
 
-**[IMPORTANT] This is the most critical step!**
-The `data/` folder in this project comes with a pre-built **`font.ttf`**. This file has been optimized and includes:
+![From above](images/photos/IMG_20260105_074423_292.jpg)
 
-* **Ministry of Education's 4808 Common Traditional Chinese Characters**
-* **Common ASCII Characters**
-* **Special Symbols (Degrees Celsius, Warning signs, Arrows, etc.)**
+![The electronics behind the matrix](images/photos/IMG_20260105_074443_389.jpg)
 
-You **DO NOT** need to generate the font yourself. You simply need to upload it to the ESP32's Flash memory.
+![The electronics, closer](images/photos/IMG_20260105_074445_752.jpg)
 
-### Step 1: Upload via PlatformIO
-
-1. Connect the ESP32-S3 to your computer.
-2. Click the **PlatformIO Icon** (Alien head) in the VS Code sidebar.
-3. In the **PROJECT TASKS** panel, expand:
-* `esp32-s3-devkitc-1`
-* `Platform`
-
-
-4. Click **Upload Filesystem Image**.
-5. PlatformIO will package the `data` folder and flash it to the board.
-
-<img width="1384" height="1071" alt="PlatformIO setup 3: Upload Filesystem Image" src="images/setup/platformio_setup_3.png" />
-
-   
-
-### Step 2: Verify
-
-Once the terminal shows `SUCCESS`, restart the board. If the Serial Monitor shows `Font Loaded`, the system is ready.
-
----
-
-## Operation Manual
-
-1. **Startup**: Default mode is Alcohol Tester. Screen displays "Warming Up".
-2. **Warning Mode**: Use the App to turn on the Triangle Light and select a Preset Message. The Alcohol Tester will power off automatically (Interlock).
-3. **Customization**: You can change the text content, color, and size on the fly via the App.
-
----
-
-## Gallery & Demo
-
-### App Demo (Android, Google Pixel 4 XL)
-![App demo: connect over BLE, then all 9 menu functions](images/app_demo/app_demo_android_pixel4xl_20260102.gif)
-
-The 37 steps as full-resolution screenshots: [`images/app_demo/screenshots/`](images/app_demo/screenshots/)
-
-### Photos
-![IMG_20260105_074013_616](images/photos/IMG_20260105_074013_616.jpg)
-
-![IMG_20260105_074116_340](images/photos/IMG_20260105_074116_340.jpg)
-
-![IMG_20260105_074423_292](images/photos/IMG_20260105_074423_292.jpg)
-
-![IMG_20260105_074443_389](images/photos/IMG_20260105_074443_389.jpg)
-
-![IMG_20260105_074445_752](images/photos/IMG_20260105_074445_752.jpg)
-
-
-### Live Demo Video
-
+Video:
 
 https://github.com/user-attachments/assets/b1d5552f-47cb-476c-b5d7-cf04c280354c
 
+## License
 
----
-
-## Troubleshooting
-
-* **Q: Screen is black/blank?** -> A: Please verify that you have performed the **Upload Filesystem Image** step to load the font.
-* **Q: `Failed to mount LittleFS` error?** -> A: Check if `partitions_custom.csv` is correctly configured in `platformio.ini`.
-* **Q: Bluetooth is laggy?** -> A: This is normal when the LED Matrix is refreshing at high speeds. The system prioritizes display stability.
-
----
-
-*Created by [waitingate](https://github.com/waitingate)*
+MIT, see [LICENSE](LICENSE).
